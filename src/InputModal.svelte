@@ -36,8 +36,9 @@
 		let numValue = undefined;
 		
 		// Only validate if user entered a value
-		if (inputValue && inputValue.trim() !== '') {
-			numValue = parseFloat(inputValue);
+		const trimmedInput = inputValue ? String(inputValue).trim() : '';
+		if (trimmedInput !== '') {
+			numValue = parseFloat(trimmedInput);
 			
 			if (isNaN(numValue)) {
 				alert('Please enter a valid number');
@@ -59,8 +60,9 @@
 
 		const trimmedNote = noteValue.trim();
 		
-		// Require at least a value or a note
-		if (numValue === undefined && !trimmedNote) {
+		// Require at least a value or a note (unless editing an existing entry)
+		const hasExistingData = editData.value !== undefined || editData.note;
+		if (numValue === undefined && !trimmedNote && !hasExistingData) {
 			alert('Please enter a value or a note');
 			return;
 		}
