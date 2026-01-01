@@ -68,7 +68,18 @@
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape') {
 			close();
-		} else if (e.key === 'Enter' && !e.shiftKey) {
+		}
+	}
+
+	function handleInputKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			handleSave();
+		}
+	}
+
+	function handleTextareaKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
 			e.preventDefault();
 			handleSave();
 		}
@@ -105,8 +116,8 @@
 </script>
 
 {#if isOpen}
-	<div class="modal-backdrop" on:click={close}>
-		<div class="habit-input-modal" on:click|stopPropagation on:keydown={handleKeydown}>
+	<div class="modal-backdrop" on:click={close} on:keydown={handleKeydown}>
+		<div class="habit-input-modal" on:click|stopPropagation>
 			<div class="modal-header">
 				<h3>{habitName}</h3>
 				<div class="modal-date">{formatDate(editData.date)}</div>
@@ -130,6 +141,7 @@
 							min="0"
 							max={editData.maxValue}
 							step={editData.type === 'duration' ? '1' : '0.1'}
+							on:keydown={handleInputKeydown}
 						/>
 						<span class="unit-label">{getUnitLabel()}</span>
 					</div>
@@ -145,6 +157,7 @@
 						bind:value={noteValue}
 						placeholder="Add a note about this entry..."
 						rows="3"
+						on:keydown={handleTextareaKeydown}
 					/>
 				</div>
 			</div>

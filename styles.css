@@ -269,11 +269,13 @@ div:has(.block-language-habittracker) {
 
 .today-emoji-indicator {
 	position: absolute;
-	top: -2px;
+	top: 50%;
 	left: 50%;
-	transform: translateX(-50%);
-	font-size: 0.6em;
+	transform: translate(-50%, -50%);
+	font-size: 1.2em;
 	line-height: 1;
+	z-index: 0;
+	opacity: 0.3;
 }
 
 .habit-tracker__cell--today-highlight {

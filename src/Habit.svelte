@@ -433,7 +433,7 @@
 					<span class="habit-value">{getDisplayValue(date)}</span>
 				{/if}
 				{#if entriesInRange[date].note}
-					<span class="habit-note-indicator" title={entriesInRange[date].note}>📝</span>
+					<span class="habit-note-indicator" title={entriesInRange[date].note}></span>
 				{/if}
 			</div>
 		{/each}
@@ -452,25 +452,32 @@
 
 <style>
 	.habit-value {
-		font-size: 0.6em;
-		font-weight: 700;
-		color: var(--text-on-accent);
+		font-size: 0.65em;
+		font-weight: 800;
+		color: #ffffff;
 		line-height: 1;
 		position: absolute;
-		z-index: 2;
+		z-index: 3;
 		pointer-events: none;
-		text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+		text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8),
+		             0 0 1px rgba(0, 0, 0, 0.9),
+		             1px 1px 2px rgba(0, 0, 0, 0.7);
+		letter-spacing: -0.02em;
 	}
 
 	.habit-note-indicator {
 		position: absolute;
-		top: 0px;
-		right: 0px;
-		font-size: 0.5em;
-		opacity: 0.7;
-		z-index: 2;
+		top: 1px;
+		right: 1px;
+		width: 5px;
+		height: 5px;
+		background: #ffffff;
+		border-radius: 50%;
+		opacity: 0.9;
+		z-index: 3;
 		pointer-events: none;
-		line-height: 1;
+		box-shadow: 0 0 2px rgba(0, 0, 0, 0.8),
+		            0 0 0 1px rgba(0, 0, 0, 0.5);
 	}
 
 	.habit-tick {
