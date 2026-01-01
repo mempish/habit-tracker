@@ -1,9 +1,10 @@
 // TODO Add integration tests with jest
-import {Plugin, Notice, setIcon, App, PluginSettingTab, Setting} from 'obsidian'
+import {Plugin, Notice, setIcon, App, PluginSettingTab, Setting, WorkspaceLeaf} from 'obsidian'
 import HabitTracker from './HabitTracker.svelte'
 import HabitTrackerError from './HabitTrackerError.svelte'
 import { debugLog, renderPrettyDate, isValidCSSColor } from './utils'
 import type { GlobalHabitTrackerSettings, TodayIndicator, StorageLocation } from './types'
+import { HabitTrackerView, VIEW_TYPE_HABIT_TRACKER } from './HabitTrackerView'
 
 	import {
 		format,
@@ -33,6 +34,26 @@ export default class HabitTracker21 extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+
+		// Register the custom view
+		this.registerView(
+			VIEW_TYPE_HABIT_TRACKER,
+			(leaf) => new HabitTrackerView(leaf, this)
+		);
+
+		// Add command to open the habit tracker view
+		this.addCommand({
+			id: 'open-habit-tracker-view',
+			name: 'Open Habit Tracker',
+			callback: () => {
+				this.activateView();
+			}
+		});
+
+		// Add ribbon icon to open the view
+		this.addRibbonIcon('check-circle', 'Open Habit Tracker', () => {
+			this.activateView();
+		});
 
 		this.registerMarkdownCodeBlockProcessor('habittracker', async (src, el) => {
 			// const trackingPixel = document.createElement('img')
@@ -83,6 +104,11 @@ export default class HabitTracker21 extends Plugin {
 		this.addSettingTab(new HabitTrackerSettingTab(this.app, this));
 	}
 
+	onunload() {
+		// Clean up any open views
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_HABIT_TRACKER);
+	}
+
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
@@ -92,6 +118,26 @@ export default class HabitTracker21 extends Plugin {
 		await this.saveData(this.settings);
 		// Refresh all habit tracker instances when settings change
 		this.refreshAllHabitTrackers();
+	}
+
+	async activateView() {
+		const { workspace } = this.app;
+
+		let leaf: WorkspaceLeaf | null = null;
+		const leaves = workspace.getLeavesOfType(VIEW_TYPE_HABIT_TRACKER);
+
+		if (leaves.length > 0) {
+			// A leaf with our view already exists, use that
+			leaf = leaves[0];
+		} else {
+			// Our view could not be found in the workspace, create a new leaf
+			// in the right sidebar for it
+			leaf = workspace.getRightLeaf(false);
+			await leaf.setViewState({ type: VIEW_TYPE_HABIT_TRACKER, active: true });
+		}
+
+		// "Reveal" the leaf in case it is in a collapsed sidebar
+		workspace.revealLeaf(leaf);
 	}
 
 	refreshAllHabitTrackers() {

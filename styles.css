@@ -1,3 +1,15 @@
+/* Habit Tracker Custom View */
+.habit-tracker-view-container {
+	padding: 16px;
+	height: 100%;
+	overflow: auto;
+}
+
+.habit-tracker-view-container .block-language-habittracker {
+	border: none;
+	max-width: 100%;
+}
+
 /* View Modes - Less cluttered options */
 .habit-tracker__row[data-view-mode="compact"] .habit-tracker__cell {
 	--habit-cell-width: 20px;
