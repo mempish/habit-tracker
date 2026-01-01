@@ -22,6 +22,10 @@ data.json
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
 
+# Clojure tools (not used in this project)
+.clj-kondo
+.lsp
+
 test-vault
 FEATURES.md
 IMPLEMENTATION_PROGRESS.md

@@ -1,40 +1,38 @@
-import { ItemView, WorkspaceLeaf } from 'obsidian';
-import HabitTracker from './HabitTracker.svelte';
+import { BasesView, QueryController } from 'obsidian';
+import HabitTrackerBases from './HabitTrackerBases.svelte';
 import type HabitTracker21 from './main';
 
-export const VIEW_TYPE_HABIT_TRACKER = 'habit-tracker-view';
+export const HABIT_TRACKER_BASES_VIEW = 'habit-tracker-bases';
 
-export class HabitTrackerView extends ItemView {
-	component: HabitTracker;
+export class HabitTrackerBasesView extends BasesView {
+	readonly type = HABIT_TRACKER_BASES_VIEW;
+	private containerEl: HTMLElement;
+	private component: HabitTrackerBases | null = null;
 	plugin: HabitTracker21;
 
-	constructor(leaf: WorkspaceLeaf, plugin: HabitTracker21) {
-		super(leaf);
+	constructor(controller: QueryController, parentEl: HTMLElement, plugin: HabitTracker21) {
+		super(controller);
 		this.plugin = plugin;
+		this.containerEl = parentEl.createDiv('habit-tracker-bases-container');
 	}
 
-	getViewType() {
-		return VIEW_TYPE_HABIT_TRACKER;
-	}
+	onDataUpdated(): void {
+		// Destroy existing component if any
+		if (this.component) {
+			this.component.$destroy();
+			this.component = null;
+		}
 
-	getDisplayText() {
-		return 'Habit Tracker';
-	}
+		// Clear container
+		this.containerEl.empty();
 
-	getIcon() {
-		return 'check-circle';
-	}
-
-	async onOpen() {
-		const container = this.containerEl.children[1];
-		container.empty();
-		container.addClass('habit-tracker-view-container');
-
-		// Create the Svelte component
-		this.component = new HabitTracker({
-			target: container,
+		// Create new Svelte component with Bases data
+		this.component = new HabitTrackerBases({
+			target: this.containerEl,
 			props: {
 				app: this.app,
+				basesData: this.data,
+				basesConfig: this.config,
 				userSettings: {},
 				globalSettings: this.plugin.settings,
 				pluginName: this.plugin.manifest.name,
@@ -42,9 +40,10 @@ export class HabitTrackerView extends ItemView {
 		});
 	}
 
-	async onClose() {
+	onunload(): void {
 		if (this.component) {
 			this.component.$destroy();
+			this.component = null;
 		}
 	}
 }
