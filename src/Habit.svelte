@@ -418,7 +418,7 @@
 	init()
 </script>
 
-<div class="habit-tracker__row" style={customStyles}>
+<div class="habit-tracker__row" style={customStyles} data-view-mode={userSettings.viewMode || globalSettings.viewMode || 'default'}>
 	<div class="habit-tracker__cell--name habit-tracker__cell">
 		<a
 			href={path}
