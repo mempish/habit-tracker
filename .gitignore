@@ -26,3 +26,4 @@ test-vault
 FEATURES.md
 IMPLEMENTATION_PROGRESS.md
 IMPLEMENTATION_SUMMARY.md
+make-release.sh
