@@ -53,8 +53,8 @@ jobs:
           # Update versions.json
           MINAPP=$(grep '"minAppVersion"' manifest.json | sed 's/.*"minAppVersion": "\(.*\)".*/\1/')
           echo "{
-            \"${{ steps.versioversion.outputs.TAG_NAME }}
-          release_name: Release ${{ steps.version.outputs.TAG_NAME
+            \"${{ steps.version.outputs.VERSION }}\": \"$MINAPP\"
+          }" > versions.json.tmp
           
           # Merge with existing versions
           if [ -f versions.json ]; then

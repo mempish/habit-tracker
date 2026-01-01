@@ -149,7 +149,8 @@
 				<div class="modal-date">{formatDate(editData.date)}</div>
 			</div>
 
-			<{#if !isEditMode}
+		<div class="modal-body">
+			{#if !isEditMode}
 					<!-- Read-only view mode -->
 					<div class="view-mode">
 						<div class="view-group">
