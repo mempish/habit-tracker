@@ -23,29 +23,33 @@
 	}
 
 	function handleSave() {
-		const numValue = parseFloat(inputValue);
+		let numValue = undefined;
 		
-		// Validate input
-		if (inputValue && isNaN(numValue)) {
-			alert('Please enter a valid number');
-			return;
-		}
+		// Only validate if user entered a value
+		if (inputValue && inputValue.trim() !== '') {
+			numValue = parseFloat(inputValue);
+			
+			if (isNaN(numValue)) {
+				alert('Please enter a valid number');
+				return;
+			}
 
-		// Check max value
-		if (editData.maxValue && numValue > editData.maxValue) {
-			alert(`Value cannot exceed ${editData.maxValue}`);
-			return;
-		}
+			// Check max value
+			if (editData.maxValue && numValue > editData.maxValue) {
+				alert(`Value cannot exceed ${editData.maxValue}`);
+				return;
+			}
 
-		// Check min value (must be positive)
-		if (numValue < 0) {
-			alert('Value cannot be negative');
-			return;
+			// Check min value (must be positive)
+			if (numValue < 0) {
+				alert('Value cannot be negative');
+				return;
+			}
 		}
 
 		dispatch('save', {
 			date: editData.date,
-			value: inputValue ? numValue : undefined,
+			value: numValue,
 			note: noteValue.trim() || undefined
 		});
 
@@ -193,7 +197,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		z-index: 1000;
+		z-index: 10000;
 		backdrop-filter: blur(2px);
 	}
 
@@ -206,6 +210,8 @@
 		max-height: 85vh;
 		overflow: auto;
 		border: 1px solid var(--background-modifier-border);
+		position: relative;
+		z-index: 10001;
 	}
 
 	.modal-header {
