@@ -435,6 +435,12 @@
 				{#if entriesInRange[date].note}
 					<span class="habit-note-indicator" title={entriesInRange[date].note}></span>
 				{/if}
+				{#if entriesInRange[date].streak > 1}
+					{@const isNextDayTicked = date === dates.at(-1) ? entryDates.includes(getDateAsString(addDays(parseISO(date), 1))) : entriesInRange[getDateAsString(addDays(parseISO(date), 1))]?.ticked}
+					{#if !isNextDayTicked}
+						<span class="habit-streak-count">{entriesInRange[date].streak}</span>
+					{/if}
+				{/if}
 			</div>
 		{/each}
 	{/if}
@@ -505,8 +511,20 @@
 		box-shadow: 0 0 0 1px var(--habit-bg-ticked, var(--interactive-accent)) !important;
 	}
 	
-	/* When showing streak numbers, hide the value to avoid overlap */
-	.habit-tick--streak.habit-tick--streak-end .habit-value {
-		display: none;
+	/* Streak counter badge */
+	.habit-streak-count {
+		position: absolute;
+		top: 1px;
+		left: 1px;
+		font-size: 0.5em;
+		font-weight: 700;
+		color: #ffffff;
+		line-height: 1;
+		z-index: 3;
+		pointer-events: none;
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8),
+		             0 0 1px rgba(0, 0, 0, 0.9);
+		min-width: 8px;
+		text-align: center;
 	}
 </style>

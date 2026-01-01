@@ -47,10 +47,18 @@
 			}
 		}
 
+		const trimmedNote = noteValue.trim();
+		
+		// Require at least a value or a note
+		if (numValue === undefined && !trimmedNote) {
+			alert('Please enter a value or a note');
+			return;
+		}
+
 		dispatch('save', {
 			date: editData.date,
 			value: numValue,
-			note: noteValue.trim() || undefined
+			note: trimmedNote || undefined
 		});
 
 		close();
