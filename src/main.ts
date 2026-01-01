@@ -104,11 +104,6 @@ export default class HabitTracker21 extends Plugin {
 		this.addSettingTab(new HabitTrackerSettingTab(this.app, this));
 	}
 
-	onunload() {
-		// Clean up any open views
-		this.app.workspace.detachLeavesOfType(VIEW_TYPE_HABIT_TRACKER);
-	}
-
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
@@ -133,11 +128,15 @@ export default class HabitTracker21 extends Plugin {
 			// Our view could not be found in the workspace, create a new leaf
 			// in the right sidebar for it
 			leaf = workspace.getRightLeaf(false);
-			await leaf.setViewState({ type: VIEW_TYPE_HABIT_TRACKER, active: true });
+			if (leaf) {
+				await leaf.setViewState({ type: VIEW_TYPE_HABIT_TRACKER, active: true });
+			}
 		}
 
 		// "Reveal" the leaf in case it is in a collapsed sidebar
-		workspace.revealLeaf(leaf);
+		if (leaf) {
+			workspace.revealLeaf(leaf);
+		}
 	}
 
 	refreshAllHabitTrackers() {
@@ -322,7 +321,8 @@ export default class HabitTracker21 extends Plugin {
 	}
 
 	onunload() {
-		// window.location.reload();
+		// Clean up any open views
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_HABIT_TRACKER);
 	}
 }
 
