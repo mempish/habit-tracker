@@ -253,6 +253,23 @@ div:has(.block-language-habittracker) {
 	white-space: nowrap;
 	transform: translateX(-50%);
 	border-radius: var(--habit-tooltip-radius);
+	z-index: 100;
+}
+
+/* Today indicator - pulsing border */
+.habit-tracker__cell--today {
+	animation: pulse-border 2s ease-in-out infinite;
+	border: 2px solid var(--interactive-accent) !important;
+	box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+@keyframes pulse-border {
+	0%, 100% {
+		box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+	}
+	50% {
+		box-shadow: 0 0 0 4px rgba(var(--interactive-accent-rgb), 0.4);
+	}
 }
 .habit-tracker__header
 	.habit-tracker__cell[data-ht21-pretty-date]:last-child:hover:after {

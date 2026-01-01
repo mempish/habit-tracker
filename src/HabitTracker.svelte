@@ -351,7 +351,7 @@
 				<div
 					class="habit-tracker__cell habit-tracker__cell--{getDayOfTheWeek(
 						date,
-					)}"
+					)} {isToday(parseISO(date)) ? 'habit-tracker__cell--today' : ''}"
 					data-ht21-date={date}
 					data-ht21-pretty-date={renderPrettyDate(date)}
 				>

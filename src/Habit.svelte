@@ -142,9 +142,20 @@
 			return ''
 		}
 		
-		if (entry.value !== undefined) {
+		if (entry.value !== undefined && entry.value !== null) {
 			const value = entry.value
-			const unit = habitUnit || (habitType === 'duration' ? 'm' : '')
+			// Get unit abbreviation
+			let unit = habitUnit
+			if (!unit) {
+				unit = habitType === 'duration' ? 'm' : ''
+			} else {
+				// Abbreviate common units
+				if (unit === 'minutes') unit = 'm'
+				else if (unit === 'hours') unit = 'h'
+				else if (unit === 'cups') unit = 'c'
+				else if (unit === 'pages') unit = 'p'
+				else if (unit.length > 3) unit = unit.substring(0, 2)
+			}
 			return `${value}${unit}`
 		}
 		
@@ -436,40 +447,49 @@
 
 <style>
 	.habit-value {
-		font-size: 0.7em;
-		font-weight: 600;
+		font-size: 0.65em;
+		font-weight: 700;
 		color: var(--text-on-accent);
 		display: block;
 		line-height: 1;
+		position: relative;
+		z-index: 2;
+		pointer-events: none;
 	}
 
 	.habit-note-indicator {
 		position: absolute;
-		top: 2px;
-		right: 2px;
-		font-size: 0.6em;
-		opacity: 0.8;
+		top: 1px;
+		right: 1px;
+		font-size: 0.55em;
+		opacity: 0.7;
+		z-index: 2;
+		pointer-events: none;
+		line-height: 1;
 	}
 
 	.habit-tick {
 		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	/* Intensity levels for duration/quantity habits */
-	.habit-tick--low {
-		opacity: 0.4;
+	.habit-tick--low:before {
+		opacity: 0.5 !important;
 	}
 
-	.habit-tick--medium {
-		opacity: 0.6;
+	.habit-tick--medium:before {
+		opacity: 0.7 !important;
 	}
 
-	.habit-tick--high {
-		opacity: 0.8;
+	.habit-tick--high:before {
+		opacity: 0.85 !important;
 	}
 
-	.habit-tick--complete {
-		opacity: 1;
-		box-shadow: 0 0 0 2px var(--habit-bg-ticked, var(--interactive-accent));
+	.habit-tick--complete:before {
+		opacity: 1 !important;
+		box-shadow: 0 0 0 1px var(--habit-bg-ticked, var(--interactive-accent)) !important;
 	}
 </style>
