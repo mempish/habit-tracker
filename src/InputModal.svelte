@@ -149,8 +149,8 @@
 				<div class="modal-date">{formatDate(editData.date)}</div>
 			</div>
 
-		<div class="modal-body">
-			{#if !isEditMode}
+			<div class="modal-body">
+				{#if !isEditMode}
 					<!-- Read-only view mode -->
 					<div class="view-mode">
 						<div class="view-group">
@@ -190,6 +190,34 @@
 								id="value-input"
 								type="number"
 								bind:value={inputValue}
+								bind:this={inputElement}
+								placeholder="0"
+								min="0"
+								max={editData.maxValue}
+								step={editData.type === 'duration' ? '1' : '0.1'}
+								on:keydown={handleInputKeydown}
+							/>
+							<span class="unit-label">{getUnitLabel()}</span>
+						</div>
+						{#if editData.maxValue}
+							<div class="help-text">Maximum: {editData.maxValue}</div>
+						{/if}
+					</div>
+
+					<div class="input-group">
+						<label for="note-input">Note (optional)</label>
+						<textarea
+							id="note-input"
+							bind:value={noteValue}
+							placeholder="Add a note about this entry..."
+							rows="3"
+							on:keydown={handleTextareaKeydown}
+						/>
+					</div>
+				{/if}
+			</div>
+
+			<div class="modal-footer">
 				{#if !isEditMode}
 					<!-- View mode buttons -->
 					<button class="btn btn-delete" on:click={handleDelete}>
@@ -216,36 +244,7 @@
 							Save
 						</button>
 					</div>
-				{/if}v class="help-text">Maximum: {editData.maxValue}</div>
-						{/if}
-					</div>
-
-					<div class="input-group">
-						<label for="note-input">Note (optional)</label>
-						<textarea
-							id="note-input"
-							bind:value={noteValue}
-							placeholder="Add a note about this entry..."
-							rows="3"
-							on:keydown={handleTextareaKeydown}
-						/>
-					</div>
 				{/if}
-				</div>
-			</div>
-
-			<div class="modal-footer">
-				<button class="btn btn-delete" on:click={handleDelete}>
-					Delete
-				</button>
-				<div class="button-group">
-					<button class="btn btn-cancel" on:click={close}>
-						Cancel
-					</button>
-					<button class="btn btn-primary" on:click={handleSave}>
-						Save
-					</button>
-				</div>
 			</div>
 		</div>
 	</div>
