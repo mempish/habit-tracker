@@ -33,12 +33,15 @@
 	}
 
 	function handleSave() {
+		console.log('handleSave called', { inputValue, noteValue, editData });
 		let numValue = undefined;
 		
 		// Only validate if user entered a value
 		const trimmedInput = inputValue ? String(inputValue).trim() : '';
+		console.log('trimmedInput:', trimmedInput);
 		if (trimmedInput !== '') {
 			numValue = parseFloat(trimmedInput);
+			console.log('parsed numValue:', numValue);
 			
 			if (isNaN(numValue)) {
 				alert('Please enter a valid number');
@@ -59,14 +62,17 @@
 		}
 
 		const trimmedNote = noteValue.trim();
+		console.log('trimmedNote:', trimmedNote);
 		
 		// Require at least a value or a note (unless editing an existing entry)
 		const hasExistingData = editData.value !== undefined || editData.note;
+		console.log('validation check:', { numValue, trimmedNote, hasExistingData });
 		if (numValue === undefined && !trimmedNote && !hasExistingData) {
 			alert('Please enter a value or a note');
 			return;
 		}
 
+		console.log('dispatching save event');
 		dispatch('save', {
 			date: editData.date,
 			value: numValue,
