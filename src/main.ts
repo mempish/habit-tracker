@@ -3,19 +3,13 @@ import {Plugin, Notice, setIcon, App, PluginSettingTab, Setting} from 'obsidian'
 import HabitTracker from './HabitTracker.svelte'
 import HabitTrackerError from './HabitTrackerError.svelte'
 import { debugLog, renderPrettyDate, isValidCSSColor } from './utils'
+import type { GlobalHabitTrackerSettings, TodayIndicator, StorageLocation } from './types'
 
 	import {
 		format,
 	} from 'date-fns'
 
-interface HabitTrackerSettings {
-	path: string;
-	daysToShow: number;
-	debug: boolean;
-	matchLineLength: boolean;
-	defaultColor: string;
-	showStreaks: boolean;
-}
+interface HabitTrackerSettings extends GlobalHabitTrackerSettings {}
 
 const DEFAULT_SETTINGS: HabitTrackerSettings = {
 	path: '',
@@ -23,7 +17,14 @@ const DEFAULT_SETTINGS: HabitTrackerSettings = {
 	debug: false,
 	matchLineLength: true,
 	defaultColor: '',
-	showStreaks: true
+	showStreaks: true,
+	reverseOrder: false,
+	todayIndicator: 'border' as TodayIndicator,
+	storageLocation: 'habit-file' as StorageLocation,
+	showMetrics: true,
+	autoRefresh: true,
+	enableStreakFreezes: true,
+	maxFreezeDays: 7
 }
 
 export default class HabitTracker21 extends Plugin {
@@ -294,7 +295,7 @@ class HabitTrackerSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', {text: `${this.plugin.manifest.name} Settings`});
 
 		// General Settings Section
-		let generalHeader = containerEl.createEl('h4', {text: 'General Settings'});
+		let generalHeader = containerEl.createEl('h4', {text: '📁 General'});
 		generalHeader.style.marginBottom = '0';
 		const generalDesc = containerEl.createEl('div', {
 			cls: 'setting-item-description',
@@ -352,6 +353,45 @@ class HabitTrackerSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
+			.setName('Reverse order')
+			.setDesc('Show newest days first (right to left). Can be overridden per tracker.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.reverseOrder)
+				.onChange(async (value) => {
+					this.plugin.settings.reverseOrder = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Match line length')
+			.setDesc('Make habit tracker match the width of the readable line length. Can be overridden with "matchLineLength" in code blocks.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.matchLineLength)
+				.onChange(async (value) => {
+					this.plugin.settings.matchLineLength = value;
+					await this.plugin.saveSettings();
+				}));
+
+		// Appearance Section
+		const appearanceHeader = containerEl.createEl('h4', {text: '🎨 Appearance'});
+		appearanceHeader.style.marginTop = '20px';
+		appearanceHeader.style.marginBottom = '0';
+
+		new Setting(containerEl)
+			.setName('Today indicator')
+			.setDesc('How to highlight the current day in the tracker.')
+			.addDropdown(dropdown => dropdown
+				.addOption('border', 'Pulsing border (default)')
+				.addOption('emoji', 'Emoji indicator (⭐)')
+				.addOption('highlight', 'Background highlight')
+				.addOption('none', 'No indicator')
+				.setValue(this.plugin.settings.todayIndicator)
+				.onChange(async (value) => {
+					this.plugin.settings.todayIndicator = value as any;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
 			.setName('Default color')
 			.setDesc('Default habit color (hex, RGB, or CSS color name). Can be overridden with "color" in code blocks or habit frontmatter.')
 			.addText(text => text
@@ -376,18 +416,87 @@ class HabitTrackerSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Match line length')
-			.setDesc('Make habit tracker match the width of the readable line length. Can be overridden with "matchLineLength" in code blocks.')
+			.setName('Show metrics panel')
+			.setDesc('Display habit statistics (streaks, completion rate, etc.) below each tracker.')
 			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.matchLineLength)
+				.setValue(this.plugin.settings.showMetrics)
 				.onChange(async (value) => {
-					this.plugin.settings.matchLineLength = value;
+					this.plugin.settings.showMetrics = value;
+					await this.plugin.saveSettings();
+				}));
+
+		// Data Storage Section
+		const storageHeader = containerEl.createEl('h4', {text: '💾 Data Storage'});
+		storageHeader.style.marginTop = '20px';
+		storageHeader.style.marginBottom = '0';
+
+		new Setting(containerEl)
+			.setName('Storage location')
+			.setDesc('Where to store habit tracking data. Note: Daily note storage stores each habit as a property in your daily notes.')
+			.addDropdown(dropdown => dropdown
+				.addOption('habit-file', 'Habit files (default)')
+				.addOption('daily-note', 'Daily notes properties')
+				.setValue(this.plugin.settings.storageLocation)
+				.onChange(async (value) => {
+					this.plugin.settings.storageLocation = value as any;
+					await this.plugin.saveSettings();
+				}));
+
+		// Tracking Features Section
+		const trackingHeader = containerEl.createEl('h4', {text: '📊 Tracking Features'});
+		trackingHeader.style.marginTop = '20px';
+		trackingHeader.style.marginBottom = '0';
+
+		new Setting(containerEl)
+			.setName('Enable streak freezes')
+			.setDesc('Allow marking days as "frozen" (e.g., vacations) that don\'t break streaks.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableStreakFreezes)
+				.onChange(async (value) => {
+					this.plugin.settings.enableStreakFreezes = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Maximum freeze days')
+			.setDesc('Maximum number of consecutive days that can be frozen.')
+			.addText(text => text
+				.setValue(this.plugin.settings.maxFreezeDays.toString())
+				.onChange(async (value) => {
+					const numValue = parseInt(value);
+					if (!isNaN(numValue) && numValue >= 0) {
+						this.plugin.settings.maxFreezeDays = numValue;
+						await this.plugin.saveSettings();
+					}
+				}))
+			.then(setting => {
+				// Add number input attributes
+				const inputEl = setting.controlEl.querySelector('input') as HTMLInputElement;
+				if (inputEl) {
+					inputEl.type = 'number';
+					inputEl.min = '0';
+					inputEl.step = '1';
+				}
+			});
+
+		// Advanced Section
+		const advancedHeader = containerEl.createEl('h4', {text: '🔧 Advanced'});
+		advancedHeader.style.marginTop = '20px';
+		advancedHeader.style.marginBottom = '0';
+
+		new Setting(containerEl)
+			.setName('Auto-refresh')
+			.setDesc('Automatically refresh trackers at midnight and when habit files change.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.autoRefresh)
+				.onChange(async (value) => {
+					this.plugin.settings.autoRefresh = value;
 					await this.plugin.saveSettings();
 				}));
 
 		// Troubleshooting Section
 		const troubleshootingHeader = containerEl.createEl('h4', {text: 'Troubleshooting'});
-		troubleshootingHeader.style.marginTop = '30px';
+		troubleshootingHeader.style.marginTop = '20px';
 
 		new Setting(containerEl)
 			.setName('Debug mode')
