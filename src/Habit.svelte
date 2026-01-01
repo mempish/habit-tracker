@@ -199,7 +199,7 @@
 		debugLog(`Loading habit ${habitName}`, debug, undefined, pluginName)
 
 		const getFrontmatter = async function (path) {
-			const file = this.app.vault.getAbstractFileByPath(path)
+			const file = app.vault.getAbstractFileByPath(path)
 
 			if (!file || !(file instanceof TFile)) {
 				debugLog(
@@ -212,7 +212,7 @@
 			}
 
 			try {
-				return await this.app.vault.read(file).then((result) => {
+				return await app.vault.read(file).then((result) => {
 					const frontmatter = result.split('---')[1]
 
 					if (!frontmatter){
@@ -282,7 +282,7 @@
 	}
 
 	const toggleHabit = function (date: string) {
-		const file = this.app.vault.getAbstractFileByPath(path)
+		const file = app.vault.getAbstractFileByPath(path)
 		if (!file || !(file instanceof TFile)) {
 			new Notice(`${pluginName}: file missing while trying to toggle habit`)
 			return
@@ -314,7 +314,7 @@
 		entries = entriesToSave
 		savingChanges = true
 
-		this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+		app.fileManager.processFrontMatter(file, (frontmatter) => {
 			frontmatter['entries'] = entriesToSave
 		})
 	}
@@ -335,7 +335,7 @@
 
 	function handleModalSave(event: CustomEvent) {
 		const { date, value, note } = event.detail
-		const file = this.app.vault.getAbstractFileByPath(path)
+		const file = app.vault.getAbstractFileByPath(path)
 		
 		if (!file || !(file instanceof TFile)) {
 			new Notice(`${pluginName}: file missing while trying to save entry`)
@@ -376,14 +376,14 @@
 		entries = entriesToSave
 		savingChanges = true
 
-		this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+		app.fileManager.processFrontMatter(file, (frontmatter) => {
 			frontmatter['entries'] = entriesToSave
 		})
 	}
 
 	function handleModalDelete(event: CustomEvent) {
 		const { date } = event.detail
-		const file = this.app.vault.getAbstractFileByPath(path)
+		const file = app.vault.getAbstractFileByPath(path)
 		
 		if (!file || !(file instanceof TFile)) {
 			new Notice(`${pluginName}: file missing while trying to delete entry`)
@@ -410,7 +410,7 @@
 		entries = entriesToSave
 		savingChanges = true
 
-		this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+		app.fileManager.processFrontMatter(file, (frontmatter) => {
 			frontmatter['entries'] = entriesToSave
 		})
 	}
