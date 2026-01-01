@@ -123,6 +123,14 @@
 
 			if (entriesInRange[date].ticked && !isNextDayTicked) {
 				classes.push('habit-tick--streak-end')
+				
+				// Add class to show value with streak if setting is enabled
+				const showValueWithStreak = userSettings.showValueWithStreak !== undefined 
+					? userSettings.showValueWithStreak 
+					: globalSettings.showValueWithStreak
+				if (showValueWithStreak) {
+					classes.push('show-value-with-streak')
+				}
 			}
 		}
 
@@ -435,7 +443,7 @@
 				{#if entriesInRange[date].note}
 					<span class="habit-note-indicator" title={entriesInRange[date].note}></span>
 				{/if}
-				{#if entriesInRange[date].streak > 1}
+				{#if (userSettings.showValueWithStreak ?? globalSettings.showValueWithStreak) && entriesInRange[date].streak > 1}
 					{@const isNextDayTicked = date === dates.at(-1) ? entryDates.includes(getDateAsString(addDays(parseISO(date), 1))) : entriesInRange[getDateAsString(addDays(parseISO(date), 1))]?.ticked}
 					{#if !isNextDayTicked}
 						<span class="habit-streak-count">{entriesInRange[date].streak}</span>
@@ -511,7 +519,7 @@
 		box-shadow: 0 0 0 1px var(--habit-bg-ticked, var(--interactive-accent)) !important;
 	}
 	
-	/* Streak counter badge */
+	/* Streak counter badge (alternative view) */
 	.habit-streak-count {
 		position: absolute;
 		top: 1px;
@@ -526,5 +534,15 @@
 		             0 0 1px rgba(0, 0, 0, 0.9);
 		min-width: 8px;
 		text-align: center;
+	}
+
+	/* When showing streak numbers in default mode, hide the value to avoid overlap */
+	.habit-tick--streak.habit-tick--streak-end .habit-value {
+		display: none;
+	}
+	
+	/* When showValueWithStreak is enabled, show the value */
+	.habit-tick--streak.habit-tick--streak-end.show-value-with-streak .habit-value {
+		display: block;
 	}
 </style>

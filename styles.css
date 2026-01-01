@@ -349,5 +349,6 @@ div:has(.block-language-habittracker) {
 	border-bottom-right-radius: var(--habit-streak-radius);
 }
 .habit-tick--streak + .habit-tick--streak-end:before {
-	/* Streak count now shown as separate element */
+	content: attr(streak);
+	font-weight: bold;
 }

@@ -12,13 +12,23 @@
 	let noteValue: string = '';
 	let inputElement: HTMLInputElement;
 	let lastOpenedDate: string = '';
+	let isEditMode: boolean = false;
 
 	// Initialize values when modal opens
 	$: if (isOpen && editData && editData.date !== lastOpenedDate) {
 		inputValue = editData.value !== undefined ? String(editData.value) : '';
 		noteValue = editData.note || '';
 		lastOpenedDate = editData.date;
-		// Focus input after render
+		// Check if entry is empty - if so, go straight to edit mode
+		isEditMode = !editData.value && !editData.note;
+		// Focus input after render if in edit mode
+		if (isEditMode) {
+			setTimeout(() => inputElement?.focus(), 50);
+		}
+	}
+	
+	function enterEditMode() {
+		isEditMode = true;
 		setTimeout(() => inputElement?.focus(), 50);
 	}
 
@@ -78,6 +88,7 @@
 		inputValue = '';
 		noteValue = '';
 		lastOpenedDate = '';
+		isEditMode = false;
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -138,42 +149,87 @@
 				<div class="modal-date">{formatDate(editData.date)}</div>
 			</div>
 
-			<div class="modal-body">
-				<div class="input-group">
-					<label for="value-input">
-						{editData.type === 'duration' ? 'Duration' : 'Quantity'}
-						{#if editData.goal}
-							<span class="goal-label">(goal: {editData.goal} {getUnitLabel()})</span>
-						{/if}
-					</label>
-					<div class="input-with-unit">
-						<input
-							id="value-input"
-							type="number"
-							bind:value={inputValue}
-							bind:this={inputElement}
-							placeholder="0"
-							min="0"
-							max={editData.maxValue}
-							step={editData.type === 'duration' ? '1' : '0.1'}
-							on:keydown={handleInputKeydown}
-						/>
-						<span class="unit-label">{getUnitLabel()}</span>
-					</div>
-					{#if editData.maxValue}
-						<div class="help-text">Maximum: {editData.maxValue}</div>
-					{/if}
-				</div>
+			<{#if !isEditMode}
+					<!-- Read-only view mode -->
+					<div class="view-mode">
+						<div class="view-group">
+							<div class="view-label">
+								{editData.type === 'duration' ? 'Duration' : 'Quantity'}
+							</div>
+							<div class="view-value">
+								{#if editData.value !== undefined}
+									{editData.value} {getUnitLabel()}
+									{#if editData.goal}
+										<span class="goal-info">/ {editData.goal} goal</span>
+									{/if}
+								{:else}
+									<span class="empty-value">Not set</span>
+								{/if}
+							</div>
+						</div>
 
-				<div class="input-group">
-					<label for="note-input">Note (optional)</label>
-					<textarea
-						id="note-input"
-						bind:value={noteValue}
-						placeholder="Add a note about this entry..."
-						rows="3"
-						on:keydown={handleTextareaKeydown}
-					/>
+						{#if editData.note}
+							<div class="view-group">
+								<div class="view-label">Note</div>
+								<div class="view-value note-content">{editData.note}</div>
+							</div>
+						{/if}
+					</div>
+				{:else}
+					<!-- Edit mode -->
+					<div class="input-group">
+						<label for="value-input">
+							{editData.type === 'duration' ? 'Duration' : 'Quantity'}
+							{#if editData.goal}
+								<span class="goal-label">(goal: {editData.goal} {getUnitLabel()})</span>
+							{/if}
+						</label>
+						<div class="input-with-unit">
+							<input
+								id="value-input"
+								type="number"
+								bind:value={inputValue}
+				{#if !isEditMode}
+					<!-- View mode buttons -->
+					<button class="btn btn-delete" on:click={handleDelete}>
+						Delete
+					</button>
+					<div class="button-group">
+						<button class="btn btn-cancel" on:click={close}>
+							Close
+						</button>
+						<button class="btn btn-primary" on:click={enterEditMode}>
+							Edit
+						</button>
+					</div>
+				{:else}
+					<!-- Edit mode buttons -->
+					<button class="btn btn-delete" on:click={handleDelete}>
+						Delete
+					</button>
+					<div class="button-group">
+						<button class="btn btn-cancel" on:click={close}>
+							Cancel
+						</button>
+						<button class="btn btn-primary" on:click={handleSave}>
+							Save
+						</button>
+					</div>
+				{/if}v class="help-text">Maximum: {editData.maxValue}</div>
+						{/if}
+					</div>
+
+					<div class="input-group">
+						<label for="note-input">Note (optional)</label>
+						<textarea
+							id="note-input"
+							bind:value={noteValue}
+							placeholder="Add a note about this entry..."
+							rows="3"
+							on:keydown={handleTextareaKeydown}
+						/>
+					</div>
+				{/if}
 				</div>
 			</div>
 
@@ -198,7 +254,57 @@
 	.modal-backdrop {
 		position: fixed;
 		top: 0;
-		left: 0;
+		view-mode {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.view-group {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.view-label {
+		font-weight: 500;
+		color: var(--text-muted);
+		font-size: 0.85rem;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	.view-value {
+		font-size: 1.1rem;
+		color: var(--text-normal);
+		font-weight: 500;
+	}
+
+	.view-value.note-content {
+		font-weight: 400;
+		font-size: 0.95rem;
+		line-height: 1.5;
+		white-space: pre-wrap;
+		background: var(--background-secondary);
+		padding: 12px;
+		border-radius: 4px;
+		border: 1px solid var(--background-modifier-border);
+	}
+
+	.empty-value {
+		color: var(--text-faint);
+		font-style: italic;
+		font-weight: 400;
+	}
+
+	.goal-info {
+		color: var(--text-muted);
+		font-size: 0.9rem;
+		font-weight: 400;
+		margin-left: 8px;
+	}
+
+	.left: 0;
 		right: 0;
 		bottom: 0;
 		background: rgba(0, 0, 0, 0.5);
