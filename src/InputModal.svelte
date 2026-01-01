@@ -11,11 +11,13 @@
 	let inputValue: string = '';
 	let noteValue: string = '';
 	let inputElement: HTMLInputElement;
+	let lastOpenedDate: string = '';
 
 	// Initialize values when modal opens
-	$: if (isOpen && editData) {
+	$: if (isOpen && editData && editData.date !== lastOpenedDate) {
 		inputValue = editData.value !== undefined ? String(editData.value) : '';
 		noteValue = editData.note || '';
+		lastOpenedDate = editData.date;
 		// Focus input after render
 		setTimeout(() => inputElement?.focus(), 50);
 	}
@@ -63,6 +65,7 @@
 		isOpen = false;
 		inputValue = '';
 		noteValue = '';
+		lastOpenedDate = '';
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
