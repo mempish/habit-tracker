@@ -30,12 +30,9 @@ export class HabitTrackerBasesView extends BasesView {
 		this.component = new HabitTrackerBases({
 			target: this.containerEl,
 			props: {
-				app: this.app,
 				basesData: this.data,
 				basesConfig: this.config,
-				userSettings: {},
 				globalSettings: this.plugin.settings,
-				pluginName: this.plugin.manifest.name,
 			},
 		});
 	}
