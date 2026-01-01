@@ -1,6 +1,6 @@
 {
   "name": "habit-tracker-21-dev",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "description": "A minimalist, elegant habit tracker for Obsidian that helps you build lasting habits with clear progress visualization. Now with duration/quantity tracking!",
   "main": "index.js",
   "scripts": {

@@ -24,7 +24,8 @@ const DEFAULT_SETTINGS: HabitTrackerSettings = {
 	showMetrics: true,
 	autoRefresh: true,
 	enableStreakFreezes: true,
-	maxFreezeDays: 7
+	maxFreezeDays: 7,
+	showValueIntensity: true
 }
 
 export default class HabitTracker21 extends Plugin {
@@ -422,6 +423,16 @@ class HabitTrackerSettingTab extends PluginSettingTab {
 				.setValue(this.plugin.settings.showMetrics)
 				.onChange(async (value) => {
 					this.plugin.settings.showMetrics = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Show value intensity')
+			.setDesc('For duration/quantity habits, show color intensity based on value (darker = higher value).')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.showValueIntensity)
+				.onChange(async (value) => {
+					this.plugin.settings.showValueIntensity = value;
 					await this.plugin.saveSettings();
 				}));
 

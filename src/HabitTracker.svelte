@@ -58,6 +58,8 @@
 		matchLineLength: boolean
 		defaultColor: string
 		showStreaks: boolean
+		todayIndicator: string
+		showValueIntensity: boolean
 	}
 	export let userSettings: Partial<{
 		path: string
@@ -68,6 +70,8 @@
 		matchLineLength: boolean
 		color: string
 		showStreaks: boolean
+		todayIndicator: string
+		showValueIntensity: boolean
 	}>
 
 	// Default settings - use global settings as defaults
@@ -348,13 +352,17 @@
 		<div class="habit-tracker__header habit-tracker__row">
 			<div class="habit-tracker__cell--name habit-tracker__cell"></div>
 			{#each state.computed.dates as date}
+				{@const todayClass = isToday(parseISO(date)) ? `habit-tracker__cell--today-${userSettings.todayIndicator || globalSettings.todayIndicator || 'border'}` : ''}
 				<div
 					class="habit-tracker__cell habit-tracker__cell--{getDayOfTheWeek(
 						date,
-					)} {isToday(parseISO(date)) ? 'habit-tracker__cell--today' : ''}"
+					)} {todayClass}"
 					data-ht21-date={date}
 					data-ht21-pretty-date={renderPrettyDate(date)}
 				>
+					{#if todayClass.includes('emoji')}
+						<span class="today-emoji-indicator">⭐</span>
+					{/if}
 					{getDate(parseISO(date))}
 				</div>
 			{/each}

@@ -256,11 +256,30 @@ div:has(.block-language-habittracker) {
 	z-index: 100;
 }
 
-/* Today indicator - pulsing border */
-.habit-tracker__cell--today {
+/* Today indicator variants */
+.habit-tracker__cell--today-border {
 	animation: pulse-border 2s ease-in-out infinite;
 	border: 2px solid var(--interactive-accent) !important;
 	box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+.habit-tracker__cell--today-emoji {
+	position: relative;
+}
+
+.today-emoji-indicator {
+	position: absolute;
+	top: -2px;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 0.6em;
+	line-height: 1;
+}
+
+.habit-tracker__cell--today-highlight {
+	background: var(--interactive-accent) !important;
+	color: var(--text-on-accent) !important;
+	font-weight: bold;
 }
 
 @keyframes pulse-border {

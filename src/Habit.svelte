@@ -76,8 +76,13 @@
 		if (entriesInRange[date].ticked) {
 			classes.push('habit-tick--ticked')
 			
-			// Add intensity class for duration/quantity habits
-			if (habitType !== 'completion' && entriesInRange[date].value && habitGoal) {
+			// Check if value intensity should be shown
+			const showIntensity = userSettings.showValueIntensity !== undefined 
+				? userSettings.showValueIntensity 
+				: globalSettings.showValueIntensity
+			
+			// Add intensity class for duration/quantity habits with values
+			if (showIntensity && habitType !== 'completion' && entriesInRange[date].value && habitGoal) {
 				const ratio = entriesInRange[date].value / habitGoal
 				if (ratio >= 1) {
 					classes.push('habit-tick--complete')
@@ -424,7 +429,7 @@
 				title={getCellTitle(date)}
 				on:click={() => handleCellClick(date)}
 			>
-				{#if entriesInRange[date].ticked && habitType !== 'completion'}
+				{#if entriesInRange[date].ticked && habitType !== 'completion' && getDisplayValue(date)}
 					<span class="habit-value">{getDisplayValue(date)}</span>
 				{/if}
 				{#if entriesInRange[date].note}
@@ -447,21 +452,21 @@
 
 <style>
 	.habit-value {
-		font-size: 0.65em;
+		font-size: 0.6em;
 		font-weight: 700;
 		color: var(--text-on-accent);
-		display: block;
 		line-height: 1;
-		position: relative;
+		position: absolute;
 		z-index: 2;
 		pointer-events: none;
+		text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
 	}
 
 	.habit-note-indicator {
 		position: absolute;
-		top: 1px;
-		right: 1px;
-		font-size: 0.55em;
+		top: 0px;
+		right: 0px;
+		font-size: 0.5em;
 		opacity: 0.7;
 		z-index: 2;
 		pointer-events: none;
@@ -475,7 +480,7 @@
 		justify-content: center;
 	}
 
-	/* Intensity levels for duration/quantity habits */
+	/* Intensity levels for duration/quantity habits - only affect the background circle */
 	.habit-tick--low:before {
 		opacity: 0.5 !important;
 	}
@@ -491,5 +496,10 @@
 	.habit-tick--complete:before {
 		opacity: 1 !important;
 		box-shadow: 0 0 0 1px var(--habit-bg-ticked, var(--interactive-accent)) !important;
+	}
+	
+	/* When showing streak numbers, hide the value to avoid overlap */
+	.habit-tick--streak.habit-tick--streak-end .habit-value {
+		display: none;
 	}
 </style>

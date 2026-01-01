@@ -141,6 +141,8 @@ export interface GlobalHabitTrackerSettings {
 	enableStreakFreezes: boolean;
 	/** Maximum freeze days allowed */
 	maxFreezeDays: number;
+	/** Show color intensity for values */
+	showValueIntensity: boolean;
 }
 
 /**
